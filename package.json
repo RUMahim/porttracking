@@ -1,0 +1,21 @@
+{
+  "name": "porttrack-backend",
+  "version": "1.0.0",
+  "description": "PortTrack container cargo tracking API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "mongoose": "^9.10.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
