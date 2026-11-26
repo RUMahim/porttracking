@@ -74,4 +74,27 @@ router.get('/me', protect, (req, res) => {
   res.json(publicUser(req.user))
 })
 
+// PUT /api/auth/change-password - logged-in user changes own password
+router.put('/change-password', protect, async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new password are required' })
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' })
+    }
+    const user = await User.findById(req.user._id).select('+password')
+    const match = await bcrypt.compare(currentPassword, user.password)
+    if (!match) {
+      return res.status(401).json({ message: 'Current password is incorrect' })
+    }
+    user.password = await bcrypt.hash(newPassword, 10)
+    await user.save()
+    res.json({ message: 'Password changed successfully' })
+  } catch (error) {
+    next(error)
+  }
+})
+
 module.exports = router

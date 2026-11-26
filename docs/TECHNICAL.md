@@ -84,6 +84,7 @@ A ready-to-import Postman collection is in [`PortTrack.postman_collection.json`]
 | POST | `/auth/register` | Public | `{ name, email, password, role }` — role: importer/exporter. Returns user + JWT |
 | POST | `/auth/login` | Public | `{ email, password }` — returns user + JWT |
 | GET | `/auth/me` | Logged in | Current user |
+| PUT | `/auth/change-password` | Logged in | `{ currentPassword, newPassword }` — change own password (min 6 chars) |
 
 ### Ships
 
