@@ -17,7 +17,10 @@ A MERN stack web application to manage ships, register import/export shipments, 
 
 ```
 porttracking/
-├── server.js          # Backend entry point (Express API, port 5000)
+├── server.js          # Local dev entry point (Express API, port 5000)
+├── app.js             # Express app (shared by local server + Vercel serverless)
+├── api/index.js       # Vercel serverless entry point for /api/*
+├── vercel.json        # Vercel build + rewrites config
 ├── models/            # Mongoose models: User, Ships, Shipment, Container, Notification
 ├── routes/            # auth, ships, shipments, containers, track, notifications, dashboard, users
 ├── middleware/auth.js # JWT protect + role authorize
@@ -77,6 +80,19 @@ Demo tracking ID for public search: `PT-2026-1042`
 | PUT    | /api/notifications/read-all     | Logged in | Mark all as read                   |
 | GET    | /api/dashboard                  | Logged in | Summary counts                     |
 | GET    | /api/users                      | Admin   | List importer/exporter accounts      |
+
+## Deploy on Vercel (full stack, one project)
+
+The repo is ready for a single Vercel project: the React frontend is built from `frontend/` and the Express API runs as a serverless function from `api/index.js` (see `vercel.json`).
+
+1. Import this GitHub repo in Vercel (root directory: repo root).
+2. Add environment variables in the Vercel project settings:
+   - `MONGODB_URI` — your MongoDB Atlas connection string
+   - `JWT_SECRET` — a long random secret
+3. In MongoDB Atlas → Network Access, allow `0.0.0.0/0` so Vercel can connect.
+4. Deploy. Frontend and API share one domain; the frontend calls `/api` on the same origin.
+
+To load demo data into the production database, run `npm run seed` locally with the same `MONGODB_URI` in your `.env`.
 
 ## Security note
 
