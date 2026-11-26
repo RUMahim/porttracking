@@ -69,6 +69,20 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/users', userRoutes)
 
+// Temporary one-time demo seeding (guarded by JWT_SECRET header; remove after use)
+app.post('/api/seed-demo', async (req, res, next) => {
+  try {
+    if (!process.env.JWT_SECRET || req.headers['x-seed-key'] !== process.env.JWT_SECRET) {
+      return res.status(403).json({ message: 'Forbidden' })
+    }
+    const { seedDemoData } = require('./seedData')
+    const result = await seedDemoData()
+    res.json(result.skipped ? { message: 'Demo data already exists, skipping seed.' } : { message: 'Seed complete', ...result })
+  } catch (err) {
+    next(err)
+  }
+})
+
 app.use((req, res) => {
   res.status(404).json({ message: 'API route not found' })
 })
