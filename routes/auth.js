@@ -1,62 +1,74 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const router = express.Router();
+const express = require('express')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const User = require('../models/User')
+const { protect } = require('../middleware/auth')
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_123';
+const router = express.Router()
 
-router.post('/register', async (req, res) => {
+const signToken = (id) =>
+  jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || '30d',
+  })
+
+const publicUser = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+})
+
+// POST /api/auth/register - new importer/exporter account
+router.post('/register', async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-    
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: 'User already exists' });
-    
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Create new user
-    user = new User({ 
-        name, 
-        email, 
-        password: hashedPassword, 
-        role: role || 'importer' 
-    });
-    await user.save();
-    
-    // Generate token
-    const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
-    res.status(201).json({ token, user: { _id: user._id, name: user.name, email: user.email, role: user.role } });
-    
-  } catch (error) {
-    // এই লাইনটি টার্মিনালে আসল এররটি দেখাবে
-    console.error("REGISTER ERROR DETAILS:", error);
-    
-    if (error.name === 'ValidationError') {
-       return res.status(400).json({ message: Object.values(error.errors).map(val => val.message).join(', ') });
+    const { name, email, password, role } = req.body
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email and password are required' })
     }
-    res.status(500).json({ message: error.message || 'Server error' });
-  }
-});
-
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
-    
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-    
-    const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, user: { _id: user._id, name: user.name, email: user.email, role: user.role } });
+    if (role && !['importer', 'exporter'].includes(role)) {
+      return res.status(400).json({ message: 'Role must be importer or exporter' })
+    }
+    const exists = await User.findOne({ email: email.toLowerCase() })
+    if (exists) {
+      return res.status(400).json({ message: 'User already exists with this email' })
+    }
+    const hashed = await bcrypt.hash(password, 10)
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashed,
+      role: role || 'importer',
+    })
+    res.status(201).json({ ...publicUser(user), token: signToken(user._id) })
   } catch (error) {
-    console.error("LOGIN ERROR DETAILS:", error);
-    res.status(500).json({ message: error.message || 'Server error' });
+    next(error)
   }
-});
+})
 
-module.exports = router;
+// POST /api/auth/login
+router.post('/login', async (req, res, next) => {
+  try {
+    const { email, password } = req.body
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' })
+    }
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password')
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' })
+    }
+    const match = await bcrypt.compare(password, user.password)
+    if (!match) {
+      return res.status(401).json({ message: 'Invalid email or password' })
+    }
+    res.json({ ...publicUser(user), token: signToken(user._id) })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET /api/auth/me - current logged-in user
+router.get('/me', protect, (req, res) => {
+  res.json(publicUser(req.user))
+})
+
+module.exports = router

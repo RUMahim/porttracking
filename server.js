@@ -1,5 +1,6 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']);require('dotenv').config()
+const dns = require('dns')
+dns.setServers(['8.8.8.8', '1.1.1.1'])
+require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
@@ -8,11 +9,20 @@ const shipRoutes = require('./routes/ships')
 const shipmentRoutes = require('./routes/shipments')
 const containerRoutes = require('./routes/containers')
 const authRoutes = require('./routes/auth')
+const trackRoutes = require('./routes/track')
+const notificationRoutes = require('./routes/notifications')
+const dashboardRoutes = require('./routes/dashboard')
+const userRoutes = require('./routes/users')
 
 const app = express()
 const PORT = process.env.PORT || 5000
 
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }))
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+  })
+)
 app.use(express.json())
 
 app.get('/', (req, res) => {
@@ -23,10 +33,21 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'PortTrack API is working!' })
 })
 
+app.get('/api/info', (req, res) => {
+  res.json({
+    project: 'PortTrack',
+    version: '1.0.0',
+  })
+})
+
+app.use('/api/auth', authRoutes)
 app.use('/api/ships', shipRoutes)
 app.use('/api/shipments', shipmentRoutes)
 app.use('/api/containers', containerRoutes)
-app.use('/api/auth', authRoutes)
+app.use('/api/track', trackRoutes)
+app.use('/api/notifications', notificationRoutes)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/users', userRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'API route not found' })
@@ -45,7 +66,11 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
   if (!process.env.MONGODB_URI) {
-    console.error('MONGODB_URI is missing. Add it to backend/.env')
+    console.error('MONGODB_URI is missing. Add it to .env (see .env.example)')
+    process.exit(1)
+  }
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is missing. Add it to .env (see .env.example)')
     process.exit(1)
   }
   try {
