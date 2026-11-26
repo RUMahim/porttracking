@@ -19,7 +19,9 @@ async function connectDB() {
   if (mongoose.connection.readyState === 1) return
   if (!connPromise) {
     if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is missing')
-    connPromise = mongoose.connect(process.env.MONGODB_URI).catch((err) => {
+    // Pass the os adapter explicitly so the driver never depends on dynamic
+    // import() for client metadata (works in every runtime, incl. Jest).
+    connPromise = mongoose.connect(process.env.MONGODB_URI, { runtimeAdapters: { os: require('os') } }).catch((err) => {
       connPromise = null
       throw err
     })

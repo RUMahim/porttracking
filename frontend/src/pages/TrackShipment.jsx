@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { Search, PackageSearch, ArrowLeft } from 'lucide-react'
 import api, { apiError } from '../api'
+import Logo from '../components/Logo'
 import StatusStepper from '../components/StatusStepper'
+import { EmptyState } from '../components/Skeleton'
+import { fmtDate, fmtWeight } from '../utils/format'
 
 export default function TrackShipment({ publicMode = false }) {
   const [params] = useSearchParams()
@@ -32,6 +36,9 @@ export default function TrackShipment({ publicMode = false }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const s = result?.shipment
+  const c = result?.container
+
   const content = (
     <div>
       <h1>Track Shipment</h1>
@@ -44,24 +51,34 @@ export default function TrackShipment({ publicMode = false }) {
         }}
       >
         <div className="row">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="PT-2026-1042" />
-          <button className="btn primary" disabled={loading}>{loading ? 'Searching…' : 'Track'}</button>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="PT-2026-1042" style={{ flex: 1 }} />
+          <button className="btn primary" disabled={loading}><Search size={15} /> {loading ? 'Searching…' : 'Track'}</button>
         </div>
-        <p className="muted">Try demo ID: <button type="button" className="link-btn" onClick={() => { setQuery('PT-2026-1042'); search('PT-2026-1042') }}>PT-2026-1042</button></p>
+        <p className="muted" style={{ marginBottom: 0 }}>Try demo ID: <button type="button" className="link-btn" onClick={() => { setQuery('PT-2026-1042'); search('PT-2026-1042') }}>PT-2026-1042</button></p>
       </form>
-      {error && <p className="error">{error}</p>}
-      {result && (
+
+      {error && (
         <div className="card">
-          <h2>{result.shipment.trackingId} <span className={`pill ${result.shipment.type}`}>{result.shipment.type}</span></h2>
-          <p><strong>Goods:</strong> {result.shipment.goodsType}</p>
-          <p><strong>Route:</strong> {result.shipment.origin} → {result.shipment.destination}</p>
-          <p><strong>Container:</strong> {result.shipment.containerId}{result.container ? ` · ${result.container.weight} kg` : ''}</p>
-          {result.shipment.ship && <p><strong>Ship:</strong> {result.shipment.ship.name} · {result.shipment.ship.dockNumber}</p>}
-          {result.container && (
-            <>
-              <p><strong>Current status:</strong> {result.container.currentStatus}</p>
-              <StatusStepper currentStatus={result.container.currentStatus} history={result.container.statusHistory} />
-            </>
+          <EmptyState icon={PackageSearch} title="No shipment found" hint={error} />
+        </div>
+      )}
+
+      {s && (
+        <div className="card">
+          <div className="list-row" style={{ borderBottom: 'none', paddingTop: 0 }}>
+            <div>
+              <strong style={{ fontSize: 18 }}>{s.trackingId}</strong> <span className={`pill ${s.type}`}>{s.type}</span>
+              <small>{s.goodsType}{c ? ` · ${fmtWeight(c.weight)}` : ''}</small>
+              <small>{s.origin} → {s.destination}</small>
+              <small>Container {s.containerId}{s.ship ? ` · Ship ${s.ship.name} (${s.ship.dockNumber})` : ''}</small>
+              {s.ship?.arrivalDate && <small>Ship arrival {fmtDate(s.ship.arrivalDate)} · Departure {fmtDate(s.ship.departureDate)}</small>}
+            </div>
+            {c && <span className="pill status">{c.currentStatus}</span>}
+          </div>
+          {c ? (
+            <StatusStepper currentStatus={c.currentStatus} history={c.statusHistory} />
+          ) : (
+            <p className="muted">Container record not found for this shipment.</p>
           )}
         </div>
       )}
@@ -70,9 +87,13 @@ export default function TrackShipment({ publicMode = false }) {
 
   if (!publicMode) return content
   return (
-    <div className="auth-page wide">
+    <div className="auth-page">
       <div className="auth-card wide">
-        <p className="muted center"><Link to="/login">← Back to login</Link></p>
+        <div className="auth-brand">
+          <Logo size={44} />
+          <h1>PortTrack</h1>
+        </div>
+        <p className="muted center"><Link to="/welcome"><ArrowLeft size={13} /> Back to home</Link> · <Link to="/login">Login</Link></p>
         {content}
       </div>
     </div>
