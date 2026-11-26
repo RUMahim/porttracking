@@ -21,6 +21,7 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 a { color: var(--teal-dark); }
@@ -66,12 +67,13 @@ h3 { margin: 18px 0 8px; font-size: 15px; }
   border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20;
 }
 .topbar-search {
-  display: flex; align-items: center; gap: 8px; flex: 1; max-width: 420px;
+  display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; max-width: 420px;
   background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px;
 }
-.topbar-search input { border: none; background: transparent; outline: none; flex: 1; min-width: 0; font-size: 14px; color: var(--text); }
+.topbar-search input { border: none; background: transparent; outline: none; flex: 1; min-width: 0; width: 100%; font-size: 14px; color: var(--text); }
 .topbar-search svg { color: var(--muted); flex-shrink: 0; }
-.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.menu-btn { flex-shrink: 0; }
 .bell { position: relative; color: var(--muted); display: flex; padding: 6px; border-radius: 8px; }
 .bell:hover { background: var(--bg); color: var(--text); }
 .bell .badge { position: absolute; top: -2px; right: -4px; }
