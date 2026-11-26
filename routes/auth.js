@@ -28,8 +28,8 @@ router.post('/register', async (req, res, next) => {
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' })
     }
-    if (role && !['importer', 'exporter'].includes(role)) {
-      return res.status(400).json({ message: 'Role must be importer or exporter' })
+    if (role && !['importer', 'exporter', 'both'].includes(role)) {
+      return res.status(400).json({ message: 'Role must be importer, exporter or both' })
     }
     const exists = await User.findOne({ email: email.toLowerCase() })
     if (exists) {

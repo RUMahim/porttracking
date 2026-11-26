@@ -40,7 +40,7 @@ export default function Register() {
           <Logo size={46} />
           <h1>PortTrack</h1>
         </div>
-        <p className="muted">Create an importer or exporter account</p>
+        <p className="muted">Create an importer, exporter or both account</p>
         <form onSubmit={submit} className="form">
           <label>Full name / Company</label>
           <input value={form.name} onChange={set('name')} placeholder="Rahim Traders" required />
@@ -58,6 +58,7 @@ export default function Register() {
           <select value={form.role} onChange={set('role')}>
             <option value="importer">Importer</option>
             <option value="exporter">Exporter</option>
+            <option value="both">Importer &amp; Exporter (both)</option>
           </select>
           {error && <p className="error">{error}</p>}
           <button className="btn primary" disabled={loading}>{loading ? 'Creating…' : 'Register'}</button>

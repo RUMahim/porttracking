@@ -29,7 +29,7 @@ async function seed() {
     { name: 'Port Officer (Admin)', email: 'admin@porttrack.demo', password, role: 'admin' },
     { name: 'Rahim Traders', email: 'importer@porttrack.demo', password, role: 'importer' },
     { name: 'Karim Exports', email: 'exporter@porttrack.demo', password, role: 'exporter' },
-    { name: 'Fatima Imports', email: 'fatima@porttrack.demo', password, role: 'importer' },
+    { name: 'Fatima Imports', email: 'fatima@porttrack.demo', password, role: 'both' },
   ])
 
   const ships = await Ship.create([

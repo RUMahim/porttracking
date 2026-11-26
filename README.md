@@ -12,7 +12,7 @@ A MERN stack web application to manage ships, register import/export shipments, 
 - Public tracking search by tracking ID or container ID (no login needed)
 - Dashboard: import vs export donut chart, container pipeline chart, recent shipments, arriving ships
 - Notifications: owners are notified when an admin updates a container status (badge polls every 30s)
-- User management (admin): list accounts, reset passwords, delete importer/exporter accounts
+- User management (admin): list accounts, reset passwords, delete trader accounts
 - Importers/exporters only see their own cargo
 - Professional UI: Inter font, SVG logo, Lucide icons, topbar with quick-track search, modal forms, toasts, skeleton loaders
 
@@ -67,7 +67,7 @@ Demo tracking ID for public search: `PT-2026-1042`
 
 | Method | Endpoint                        | Access  | Description                          |
 |--------|---------------------------------|---------|--------------------------------------|
-| POST   | /api/auth/register              | Public  | Register importer/exporter           |
+| POST   | /api/auth/register              | Public  | Register importer/exporter/both           |
 | POST   | /api/auth/login                 | Public  | Login, returns JWT                   |
 | GET    | /api/auth/me                    | Logged in | Current user                       |
 | PUT    | /api/auth/change-password       | Logged in | Change own password                |
@@ -85,9 +85,9 @@ Demo tracking ID for public search: `PT-2026-1042`
 | GET    | /api/notifications              | Logged in | My notifications                   |
 | PUT    | /api/notifications/read-all     | Logged in | Mark all as read                   |
 | GET    | /api/dashboard                  | Logged in | Summary counts                     |
-| GET    | /api/users                      | Admin   | List importer/exporter accounts (`?all=1` for all) |
+| GET    | /api/users                      | Admin   | List trader accounts (importer/exporter/both) (`?all=1` for all) |
 | PUT    | /api/users/:id/password         | Admin   | Reset a user's password              |
-| DELETE | /api/users/:id                  | Admin   | Delete importer/exporter account     |
+| DELETE | /api/users/:id                  | Admin   | Delete trader account     |
 
 ## Documentation
 

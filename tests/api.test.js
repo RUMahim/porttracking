@@ -251,3 +251,42 @@ describe('Change password (own account)', () => {
     expect(newLogin.status).toBe(200)
   })
 })
+
+describe('Both role (importer & exporter)', () => {
+  let bothToken
+
+  test('register with role both', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ name: 'Global Trading Co', email: 'both@test.demo', password: 'secret1', role: 'both' })
+    expect(res.status).toBe(201)
+    expect(res.body.role).toBe('both')
+    bothToken = res.body.token
+  })
+
+  test('both user creates import + export shipments and sees both', async () => {
+    const imp = await request(app)
+      .post('/api/shipments')
+      .set('Authorization', `Bearer ${bothToken}`)
+      .send({ type: 'import', containerId: 'BOTH-IMP-1', goodsType: 'Fabric', origin: 'Guangzhou, China', destination: 'Chattogram Port', ship: shipId, weight: 9000 })
+    expect(imp.status).toBe(201)
+
+    const exp = await request(app)
+      .post('/api/shipments')
+      .set('Authorization', `Bearer ${bothToken}`)
+      .send({ type: 'export', containerId: 'BOTH-EXP-1', goodsType: 'Garments', origin: 'Chattogram Port', destination: 'Hamburg, Germany', ship: shipId, weight: 7000 })
+    expect(exp.status).toBe(201)
+
+    const list = await request(app).get('/api/shipments').set('Authorization', `Bearer ${bothToken}`)
+    expect(list.status).toBe(200)
+    expect(list.body).toHaveLength(2)
+    expect(list.body.map((s) => s.type).sort()).toEqual(['export', 'import'])
+  })
+
+  test('both user dashboard counts import 1 / export 1', async () => {
+    const res = await request(app).get('/api/dashboard').set('Authorization', `Bearer ${bothToken}`)
+    expect(res.status).toBe(200)
+    expect(res.body.importCount).toBe(1)
+    expect(res.body.exportCount).toBe(1)
+  })
+})

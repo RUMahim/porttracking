@@ -10,7 +10,7 @@ const router = express.Router()
 // GET /api/users?all=1 - admin lists every account (Users page)
 router.get('/', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const filter = req.query.all ? {} : { role: { $in: ['importer', 'exporter'] } }
+    const filter = req.query.all ? {} : { role: { $in: ['importer', 'exporter', 'both'] } }
     const users = await User.find(filter)
       .select('name email role createdAt')
       .sort({ name: 1 })
