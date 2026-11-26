@@ -1,0 +1,60 @@
+classDiagram
+    class User {
+        +ObjectId _id
+        +String name
+        +String email
+        +String password
+        +Role role
+        +Date createdAt
+        +Date updatedAt
+    }
+    class Ship {
+        +ObjectId _id
+        +String name
+        +String imo
+        +String company
+        +Date arrivalDate
+        +Date departureDate
+        +String dockNumber
+        +ShipStatus status
+    }
+    class Shipment {
+        +ObjectId _id
+        +String trackingId
+        +ShipmentType type
+        +String containerId
+        +String goodsType
+        +String origin
+        +String destination
+        +ObjectId ship
+        +ObjectId owner
+    }
+    class Container {
+        +ObjectId _id
+        +String containerId
+        +ObjectId shipment
+        +Number weight
+        +String goodsType
+        +ContainerStatus currentStatus
+        +StatusEntry[] statusHistory
+        +updateStatus(status)
+    }
+    class StatusEntry {
+        +ContainerStatus status
+        +Date date
+    }
+    class Notification {
+        +ObjectId _id
+        +ObjectId user
+        +String title
+        +String message
+        +String trackingId
+        +String containerId
+        +Boolean isRead
+        +markRead()
+    }
+    User "1" --> "0..*" Shipment : owns
+    User "1" --> "0..*" Notification : receives
+    Ship "1" --> "0..*" Shipment : carries
+    Shipment "1" *-- "1" Container : has
+    Container "1" *-- "1..*" StatusEntry : records

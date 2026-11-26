@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor Officer as Port Officer (Admin)
+    participant UI as React Frontend
+    participant API as Express API
+    participant DB as MongoDB
+    actor Owner as Importer / Exporter
+    Officer->>UI: Select new status, click "Update status"
+    UI->>API: PUT /api/containers/:id/status (JWT)
+    API->>API: Verify JWT + admin role
+    API->>DB: Load container + linked shipment
+    DB-->>API: Container, Shipment (owner)
+    API->>DB: Set currentStatus, push statusHistory entry
+    API->>DB: Create Notification for shipment owner
+    API-->>UI: 200 OK (updated container)
+    UI-->>Officer: Toast "MSKU-... is now In Transit"
+    Owner->>UI: Open dashboard / wait for poll
+    UI->>API: GET /api/notifications (JWT)
+    API->>DB: Find notifications for user
+    DB-->>API: Notifications + unread count
+    API-->>UI: Notification list
+    UI-->>Owner: Unread badge + notification card
+    Owner->>UI: Click "Track"
+    UI->>API: GET /api/track/:trackingId
+    API-->>UI: Shipment + container + status history
+    UI-->>Owner: 6-step tracking timeline

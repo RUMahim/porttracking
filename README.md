@@ -5,13 +5,16 @@ A MERN stack web application to manage ships, register import/export shipments, 
 ## Features
 
 - Role-based login: **Admin (Port Officer)**, **Importer**, **Exporter** (JWT auth)
+- Landing page with live public tracking search (no login needed)
 - Ship management: arrival/departure dates, dock number, status (admin)
 - Shipment registration with auto-generated tracking IDs (`PT-2026-XXXX`)
 - Container tracking with a 6-step status stepper and full status history
 - Public tracking search by tracking ID or container ID (no login needed)
-- Dashboard: import vs export counts, container status breakdown, recent shipments
-- Notifications: owners are notified when an admin updates a container status
+- Dashboard: import vs export donut chart, container pipeline chart, recent shipments, arriving ships
+- Notifications: owners are notified when an admin updates a container status (badge polls every 30s)
+- User management (admin): list accounts, reset passwords, delete importer/exporter accounts
 - Importers/exporters only see their own cargo
+- Professional UI: Inter font, SVG logo, Lucide icons, topbar with quick-track search, modal forms, toasts, skeleton loaders
 
 ## Project structure
 
@@ -25,6 +28,8 @@ porttracking/
 ├── routes/            # auth, ships, shipments, containers, track, notifications, dashboard, users
 ├── middleware/auth.js # JWT protect + role authorize
 ├── seed.js            # Demo data seeder
+├── tests/             # Jest + Supertest API tests (npm test)
+├── docs/              # UML diagrams, technical documentation, Postman collection
 └── frontend/          # React (Vite) app, port 5173
 ```
 
@@ -79,7 +84,16 @@ Demo tracking ID for public search: `PT-2026-1042`
 | GET    | /api/notifications              | Logged in | My notifications                   |
 | PUT    | /api/notifications/read-all     | Logged in | Mark all as read                   |
 | GET    | /api/dashboard                  | Logged in | Summary counts                     |
-| GET    | /api/users                      | Admin   | List importer/exporter accounts      |
+| GET    | /api/users                      | Admin   | List importer/exporter accounts (`?all=1` for all) |
+| PUT    | /api/users/:id/password         | Admin   | Reset a user's password              |
+| DELETE | /api/users/:id                  | Admin   | Delete importer/exporter account     |
+
+## Documentation
+
+- [Technical documentation](docs/TECHNICAL.md) — architecture, data model, full API reference
+- [UML diagrams](docs/UML.md) — class, sequence and use-case diagrams (PNG exports in `docs/uml/`)
+- [Postman collection](docs/PortTrack.postman_collection.json) — import into Postman to test the API
+- Tests: `npm test` (Jest + Supertest, in-memory MongoDB)
 
 ## Deploy on Vercel (full stack, one project)
 

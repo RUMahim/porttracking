@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, Search } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { apiError } from '../api'
+import Logo from '../components/Logo'
 
 const DEMO = [
   { label: 'Admin / Port Officer', email: 'admin@porttrack.demo' },
@@ -14,6 +16,7 @@ export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -38,7 +41,7 @@ export default function Login() {
       await login(demoEmail, 'demo123')
       navigate('/')
     } catch (err) {
-      setError(apiError(err) + ' — did you run npm run seed in backend?')
+      setError(apiError(err))
     } finally {
       setLoading(false)
     }
@@ -47,13 +50,21 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>⚓ PortTrack</h1>
-        <p className="muted">Container Cargo Tracking System for Import & Export</p>
+        <div className="auth-brand">
+          <Logo size={46} />
+          <h1>PortTrack</h1>
+        </div>
+        <p className="muted">Container Cargo Tracking System for Import &amp; Export</p>
         <form onSubmit={submit} className="form">
           <label>Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
           <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+          <span className="pw-wrap">
+            <input type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+            <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)}>
+              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </span>
           {error && <p className="error">{error}</p>}
           <button className="btn primary" disabled={loading}>{loading ? 'Logging in…' : 'Login'}</button>
         </form>
@@ -66,8 +77,10 @@ export default function Login() {
           ))}
         </div>
         <p className="muted center">
-          New importer/exporter? <Link to="/register">Register</Link> ·{' '}
-          <Link to="/track-public">Track a shipment without login</Link>
+          New importer/exporter? <Link to="/register">Register</Link>
+        </p>
+        <p className="muted center">
+          <Link to="/track-public"><Search size={13} /> Track a shipment without login</Link> · <Link to="/welcome">Home</Link>
         </p>
       </div>
     </div>
