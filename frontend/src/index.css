@@ -76,6 +76,36 @@ h3 { margin: 18px 0 8px; font-size: 15px; }
 .bell:hover { background: var(--bg); color: var(--text); }
 .bell .badge { position: absolute; top: -2px; right: -4px; }
 .user-chip { display: flex; align-items: center; gap: 10px; }
+.user-chip {
+  border: 1px solid transparent; background: transparent; cursor: pointer;
+  padding: 5px 8px; border-radius: 10px; font-family: inherit; text-align: left;
+}
+.user-chip:hover { background: var(--bg); border-color: var(--border); }
+.user-chip .chev { color: var(--muted); transition: transform 0.15s ease; }
+.user-chip .chev.up { transform: rotate(180deg); }
+.user-menu-wrap { position: relative; }
+.user-dropdown {
+  position: absolute; right: 0; top: calc(100% + 8px); width: 260px; z-index: 70;
+  background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(11, 34, 57, 0.18); padding: 8px;
+  animation: toast-in 0.15s ease-out;
+}
+.user-dropdown-head {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 10px 12px;
+  border-bottom: 1px solid var(--border); margin-bottom: 6px;
+}
+.user-dropdown-head small { color: var(--muted); font-size: 12px; }
+.user-dropdown-head .pill { align-self: flex-start; margin-top: 6px; }
+.user-menu-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 9px 10px; border: none; background: transparent; cursor: pointer;
+  border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text);
+  text-decoration: none; font-family: inherit; text-align: left;
+}
+.user-menu-item:hover { background: var(--bg); }
+.user-menu-item .badge { margin-left: auto; }
+.user-menu-item.danger { color: var(--danger); }
+.user-menu-sep { height: 1px; background: var(--border); margin: 6px 4px; }
 .avatar {
   width: 36px; height: 36px; border-radius: 50%; background: var(--teal); color: #fff;
   display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
@@ -384,4 +414,5 @@ td .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
   .landing-hero h1 { font-size: 27px; }
   .topbar-search input { font-size: 13px; }
   .btn { padding: 8px 12px; }
+  .user-dropdown { width: min(260px, calc(100vw - 24px)); }
 }

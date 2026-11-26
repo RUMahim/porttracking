@@ -220,3 +220,34 @@ describe('User management (admin)', () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe('Change password (own account)', () => {
+  test('rejects wrong current password', async () => {
+    const res = await request(app)
+      .put('/api/auth/change-password')
+      .set('Authorization', `Bearer ${exporterToken}`)
+      .send({ currentPassword: 'wrong-pass', newPassword: 'brandnew1' })
+    expect(res.status).toBe(401)
+  })
+
+  test('rejects short new password', async () => {
+    const res = await request(app)
+      .put('/api/auth/change-password')
+      .set('Authorization', `Bearer ${exporterToken}`)
+      .send({ currentPassword: 'secret1', newPassword: '123' })
+    expect(res.status).toBe(400)
+  })
+
+  test('changes password; new password logs in, old does not', async () => {
+    const res = await request(app)
+      .put('/api/auth/change-password')
+      .set('Authorization', `Bearer ${exporterToken}`)
+      .send({ currentPassword: 'secret1', newPassword: 'brandnew1' })
+    expect(res.status).toBe(200)
+
+    const oldLogin = await request(app).post('/api/auth/login').send({ email: 'exporter@test.demo', password: 'secret1' })
+    expect(oldLogin.status).toBe(401)
+    const newLogin = await request(app).post('/api/auth/login').send({ email: 'exporter@test.demo', password: 'brandnew1' })
+    expect(newLogin.status).toBe(200)
+  })
+})

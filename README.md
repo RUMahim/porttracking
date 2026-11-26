@@ -70,6 +70,7 @@ Demo tracking ID for public search: `PT-2026-1042`
 | POST   | /api/auth/register              | Public  | Register importer/exporter           |
 | POST   | /api/auth/login                 | Public  | Login, returns JWT                   |
 | GET    | /api/auth/me                    | Logged in | Current user                       |
+| PUT    | /api/auth/change-password       | Logged in | Change own password                |
 | GET    | /api/ships                      | Logged in | List ships                         |
 | POST   | /api/ships                      | Admin   | Add ship                             |
 | PUT    | /api/ships/:id                  | Admin   | Update ship                          |

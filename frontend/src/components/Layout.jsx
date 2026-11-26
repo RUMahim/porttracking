@@ -1,24 +1,76 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Ship, Package, Container, Search, Bell, Users, LogOut, Menu, X,
+  ChevronDown, KeyRound, Eye, EyeOff,
 } from 'lucide-react'
-import api from '../api'
+import api, { apiError } from '../api'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from './Toast'
+import { Modal } from './Modal'
 import Logo from './Logo'
 
 export default function Layout() {
   const { user, logout, isAdmin } = useAuth()
+  const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
   const [unread, setUnread] = useState(0)
   const [quickTrack, setQuickTrack] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [showPwModal, setShowPwModal] = useState(false)
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [showPw, setShowPw] = useState(false)
+  const [pwBusy, setPwBusy] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const userMenuRef = useRef(null)
 
   // Close the mobile drawer whenever the route changes
   useEffect(() => {
     setMenuOpen(false)
+    setUserMenuOpen(false)
   }, [location.pathname])
+
+  // Close the user dropdown on outside click / Escape
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const onClick = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false)
+    }
+    const onKey = (e) => {
+      if (e.key === 'Escape') setUserMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [userMenuOpen])
+
+  const submitChangePassword = async (e) => {
+    e.preventDefault()
+    setPwError('')
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      setPwError('New password and confirmation do not match')
+      return
+    }
+    setPwBusy(true)
+    try {
+      await api.put('/auth/change-password', {
+        currentPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword,
+      })
+      toast.success('Password changed successfully')
+      setShowPwModal(false)
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    } catch (err) {
+      setPwError(apiError(err))
+    } finally {
+      setPwBusy(false)
+    }
+  }
 
   // Near-real-time: poll the unread notification count every 30 seconds
   useEffect(() => {
@@ -106,12 +158,46 @@ export default function Layout() {
               <Bell size={19} />
               {unread > 0 && <span className="badge">{unread}</span>}
             </Link>
-            <div className="user-chip">
-              <div className="avatar">{initials}</div>
-              <div className="who">
-                <strong>{user?.name}</strong>
-                <small>{user?.role}</small>
-              </div>
+            <div className="user-menu-wrap" ref={userMenuRef}>
+              <button
+                className="user-chip"
+                onClick={() => setUserMenuOpen((o) => !o)}
+                aria-haspopup="menu"
+                aria-expanded={userMenuOpen}
+              >
+                <span className="avatar">{initials}</span>
+                <span className="who">
+                  <strong>{user?.name}</strong>
+                  <small>{user?.role}</small>
+                </span>
+                <ChevronDown size={15} className={`chev ${userMenuOpen ? 'up' : ''}`} />
+              </button>
+              {userMenuOpen && (
+                <div className="user-dropdown" role="menu">
+                  <div className="user-dropdown-head">
+                    <strong>{user?.name}</strong>
+                    <small>{user?.email}</small>
+                    <span className={`pill ${user?.role}`}>{user?.role}</span>
+                  </div>
+                  <Link to="/" className="user-menu-item"><LayoutDashboard size={15} /> Dashboard</Link>
+                  <Link to="/notifications" className="user-menu-item">
+                    <Bell size={15} /> Notifications {unread > 0 && <span className="badge">{unread}</span>}
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/users" className="user-menu-item"><Users size={15} /> Manage users</Link>
+                  )}
+                  <button
+                    className="user-menu-item"
+                    onClick={() => { setUserMenuOpen(false); setPwError(''); setShowPwModal(true) }}
+                  >
+                    <KeyRound size={15} /> Change password
+                  </button>
+                  <div className="user-menu-sep" />
+                  <button className="user-menu-item danger" onClick={handleLogout}>
+                    <LogOut size={15} /> Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -123,6 +209,50 @@ export default function Layout() {
           <span>Chattogram · Mongla</span>
         </footer>
       </div>
+
+      {showPwModal && (
+        <Modal title="Change password" onClose={() => setShowPwModal(false)}>
+          <form onSubmit={submitChangePassword} className="form">
+            <label>Current password
+              <span className="pw-wrap">
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  value={pwForm.currentPassword}
+                  onChange={(e) => setPwForm({ ...pwForm, currentPassword: e.target.value })}
+                  required
+                />
+                <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)}>
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </span>
+            </label>
+            <label>New password
+              <input
+                type={showPw ? 'text' : 'password'}
+                value={pwForm.newPassword}
+                onChange={(e) => setPwForm({ ...pwForm, newPassword: e.target.value })}
+                required
+                minLength={6}
+                placeholder="At least 6 characters"
+              />
+            </label>
+            <label>Confirm new password
+              <input
+                type={showPw ? 'text' : 'password'}
+                value={pwForm.confirmPassword}
+                onChange={(e) => setPwForm({ ...pwForm, confirmPassword: e.target.value })}
+                required
+                minLength={6}
+              />
+            </label>
+            {pwError && <p className="error">{pwError}</p>}
+            <div className="row end">
+              <button type="button" className="btn" onClick={() => setShowPwModal(false)}>Cancel</button>
+              <button className="btn primary" disabled={pwBusy}>{pwBusy ? 'Saving…' : 'Change password'}</button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   )
 }
