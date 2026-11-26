@@ -1,7 +1,11 @@
 import axios from 'axios'
 
+// In production the API is served from the same origin (/api), so no host is needed.
+// In local dev the backend runs separately on port 5000.
+const apiBase = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:5000' : '')
+
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`,
+  baseURL: `${apiBase}/api`,
 })
 
 // Attach JWT token to every request
