@@ -21,3 +21,8 @@ export function fmtWeight(kg) {
   if (kg == null || kg === '') return '—'
   return `${Number(kg).toLocaleString('en-US')} kg`
 }
+
+// Human-friendly role names: 'both' = a trader who imports AND exports
+export function roleLabel(role) {
+  return { admin: 'Admin', importer: 'Importer', exporter: 'Exporter', both: 'Importer & Exporter' }[role] || role || ''
+}

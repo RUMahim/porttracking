@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from './Toast'
 import { Modal } from './Modal'
 import Logo from './Logo'
+import { roleLabel } from '../utils/format'
 
 export default function Layout() {
   const { user, logout, isAdmin } = useAuth()
@@ -136,7 +137,7 @@ export default function Layout() {
         </nav>
         <div className="sidebar-user">
           <div>{user?.name}</div>
-          <small>{user?.email} · {user?.role}</small>
+          <small>{user?.email} · {roleLabel(user?.role)}</small>
           <button className="btn ghost" onClick={handleLogout}><LogOut size={15} /> Logout</button>
         </div>
       </aside>
@@ -168,7 +169,7 @@ export default function Layout() {
                 <span className="avatar">{initials}</span>
                 <span className="who">
                   <strong>{user?.name}</strong>
-                  <small>{user?.role}</small>
+                  <small>{roleLabel(user?.role)}</small>
                 </span>
                 <ChevronDown size={15} className={`chev ${userMenuOpen ? 'up' : ''}`} />
               </button>
@@ -177,7 +178,7 @@ export default function Layout() {
                   <div className="user-dropdown-head">
                     <strong>{user?.name}</strong>
                     <small>{user?.email}</small>
-                    <span className={`pill ${user?.role}`}>{user?.role}</span>
+                    <span className={`pill ${user?.role}`}>{roleLabel(user?.role)}</span>
                   </div>
                   <Link to="/" className="user-menu-item"><LayoutDashboard size={15} /> Dashboard</Link>
                   <Link to="/notifications" className="user-menu-item">

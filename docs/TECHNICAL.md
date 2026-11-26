@@ -81,7 +81,7 @@ A ready-to-import Postman collection is in [`PortTrack.postman_collection.json`]
 
 | Method | Endpoint | Access | Body / Notes |
 |---|---|---|---|
-| POST | `/auth/register` | Public | `{ name, email, password, role }` — role: importer/exporter. Returns user + JWT |
+| POST | `/auth/register` | Public | `{ name, email, password, role }` — role: importer/exporter/both. Returns user + JWT |
 | POST | `/auth/login` | Public | `{ email, password }` — returns user + JWT |
 | GET | `/auth/me` | Logged in | Current user |
 | PUT | `/auth/change-password` | Logged in | `{ currentPassword, newPassword }` — change own password (min 6 chars) |
@@ -130,7 +130,7 @@ A ready-to-import Postman collection is in [`PortTrack.postman_collection.json`]
 | GET | `/users` | Admin | Importer/exporter accounts (owner picker) |
 | GET | `/users?all=1` | Admin | All accounts incl. admins (Users page) |
 | PUT | `/users/:id/password` | Admin | `{ password }` — reset a user's password (min 6 chars) |
-| DELETE | `/users/:id` | Admin | Delete importer/exporter account (admins and self are protected) |
+| DELETE | `/users/:id` | Admin | Delete trader account (admins and self are protected) |
 
 ### Error format
 

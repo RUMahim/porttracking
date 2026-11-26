@@ -7,7 +7,7 @@ import {
 import api, { apiError } from '../api'
 import { useAuth } from '../context/AuthContext'
 import { SkeletonCards, SkeletonRows, EmptyState } from '../components/Skeleton'
-import { fmtDate } from '../utils/format'
+import { fmtDate, roleLabel } from '../utils/format'
 
 const COLORS = { import: '#2563eb', export: '#0e9a8b', bar: '#123458' }
 
@@ -28,7 +28,7 @@ export default function Dashboard() {
     return (
       <div>
         <h1>Operations Dashboard</h1>
-        <p className="muted">Welcome, {user?.name} ({user?.role})</p>
+        <p className="muted">Welcome, {user?.name} ({roleLabel(user?.role)})</p>
         <SkeletonCards />
         <SkeletonRows />
       </div>
@@ -44,7 +44,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1>Operations Dashboard</h1>
-      <p className="muted">Welcome, {user?.name} ({user?.role})</p>
+      <p className="muted">Welcome, {user?.name} ({roleLabel(user?.role)})</p>
 
       <div className="stats">
         <div className="stat">

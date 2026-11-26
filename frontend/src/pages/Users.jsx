@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 import { Modal, ConfirmModal } from '../components/Modal'
 import { SkeletonRows, EmptyState } from '../components/Skeleton'
-import { fmtDate } from '../utils/format'
+import { fmtDate, roleLabel } from '../utils/format'
 
 export default function Users() {
   const { isAdmin, user } = useAuth()
@@ -92,7 +92,7 @@ export default function Users() {
                 <tr key={u._id}>
                   <td><strong>{u.name}</strong>{u._id === user?._id && <span className="sub">You</span>}</td>
                   <td>{u.email}</td>
-                  <td><span className={`pill ${u.role}`}>{u.role}</span></td>
+                  <td><span className={`pill ${u.role}`}>{roleLabel(u.role)}</span></td>
                   <td>{fmtDate(u.createdAt)}</td>
                   <td>
                     <div className="row-actions">
