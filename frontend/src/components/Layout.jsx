@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, Ship, Package, Container, Search, Bell, Users, LogOut,
+  LayoutDashboard, Ship, Package, Container, Search, Bell, Users, LogOut, Menu, X,
 } from 'lucide-react'
 import api from '../api'
 import { useAuth } from '../context/AuthContext'
@@ -10,8 +10,15 @@ import Logo from './Logo'
 export default function Layout() {
   const { user, logout, isAdmin } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [unread, setUnread] = useState(0)
   const [quickTrack, setQuickTrack] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Close the mobile drawer whenever the route changes
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
 
   // Near-real-time: poll the unread notification count every 30 seconds
   useEffect(() => {
@@ -50,13 +57,17 @@ export default function Layout() {
 
   return (
     <div className="layout">
-      <aside className="sidebar">
+      {menuOpen && <div className="sidebar-backdrop" onClick={() => setMenuOpen(false)} />}
+      <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="brand">
           <Logo size={38} />
           <div>
             <strong>PortTrack</strong>
             <small>Container Cargo Tracking</small>
           </div>
+          <button className="icon-btn sidebar-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+            <X size={20} />
+          </button>
         </div>
         <nav className="nav">
           <NavLink to="/" end><LayoutDashboard size={17} /> Dashboard</NavLink>
@@ -79,6 +90,9 @@ export default function Layout() {
       </aside>
       <div className="content">
         <header className="topbar">
+          <button className="icon-btn menu-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+            <Menu size={20} />
+          </button>
           <form className="topbar-search" onSubmit={submitQuickTrack}>
             <Search size={16} />
             <input
