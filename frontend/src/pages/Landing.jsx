@@ -58,7 +58,7 @@ export default function Landing() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter tracking ID — e.g. PT-2026-1042"
+            placeholder="Enter tracking ID"
           />
           <button className="btn primary" disabled={loading}>
             <Search size={16} /> {loading ? 'Searching…' : 'Track'}

@@ -40,7 +40,7 @@ export default function Register() {
           <Logo size={46} />
           <h1>PortTrack</h1>
         </div>
-        <p className="muted">Create an importer, exporter or both account</p>
+        <p className="muted">Create your account</p>
         <form onSubmit={submit} className="form">
           <label>Full name / Company</label>
           <input value={form.name} onChange={set('name')} placeholder="Rahim Traders" required />
@@ -53,7 +53,7 @@ export default function Register() {
               {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </span>
-          <span className="hint">Minimum 6 characters. Admin accounts are created by the port office.</span>
+          <span className="hint">Minimum 6 characters.</span>
           <label>Role</label>
           <select value={form.role} onChange={set('role')}>
             <option value="importer">Importer</option>

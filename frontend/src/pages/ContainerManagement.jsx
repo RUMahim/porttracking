@@ -65,7 +65,7 @@ export default function ContainerManagement() {
       <div className="page-head">
         <div>
           <h1>Containers</h1>
-          <p className="muted">Track every container through Booked → Loaded → In Transit → Arrived at Port → Customs Clearance → Delivered. {containers.length} containers.</p>
+          <p className="muted">Container status from booking to delivery · {containers.length} containers</p>
         </div>
       </div>
       {error && <p className="error">{error}</p>}
