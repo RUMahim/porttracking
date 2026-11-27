@@ -85,7 +85,7 @@ export default function ShipManagement() {
       <div className="page-head">
         <div>
           <h1>Ship Management</h1>
-          <p className="muted">Record ship arrivals, departures and dock information. {ships.length} ships.</p>
+          <p className="muted">Ship arrivals, departures and docks · {ships.length} ships</p>
         </div>
         {isAdmin && (
           <button className="btn primary" onClick={openAdd}><Plus size={16} /> Add ship</button>

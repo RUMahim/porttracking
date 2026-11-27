@@ -70,7 +70,7 @@ export default function Users() {
       <div className="page-head">
         <div>
           <h1>Users</h1>
-          <p className="muted">Importer, exporter and admin accounts. Reset passwords for users who are locked out. {users.length} accounts.</p>
+          <p className="muted">All user accounts · {users.length} accounts</p>
         </div>
       </div>
       {error && !resetTarget && <p className="error">{error}</p>}

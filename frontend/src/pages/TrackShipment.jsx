@@ -42,7 +42,7 @@ export default function TrackShipment({ publicMode = false }) {
   const content = (
     <div>
       <h1>Track Shipment</h1>
-      <p className="muted">Search by tracking ID (e.g. PT-2026-1042) or container ID.</p>
+      <p className="muted">Search by tracking ID or container ID.</p>
       <form
         className="card form"
         onSubmit={(e) => {
@@ -54,7 +54,6 @@ export default function TrackShipment({ publicMode = false }) {
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="PT-2026-1042" style={{ flex: 1 }} />
           <button className="btn primary" disabled={loading}><Search size={15} /> {loading ? 'Searching…' : 'Track'}</button>
         </div>
-        <p className="muted" style={{ marginBottom: 0 }}>Try demo ID: <button type="button" className="link-btn" onClick={() => { setQuery('PT-2026-1042'); search('PT-2026-1042') }}>PT-2026-1042</button></p>
       </form>
 
       {error && (

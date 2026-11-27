@@ -93,7 +93,7 @@ export default function ShipmentManagement() {
       <div className="page-head">
         <div>
           <h1>Shipment Management</h1>
-          <p className="muted">Register import and export shipments. A container is created automatically with status Booked. {shipments.length} shipments.</p>
+          <p className="muted">Import and export shipments · {shipments.length} shipments</p>
         </div>
         <button className="btn primary" onClick={() => { setForm(EMPTY); setError(''); setShowForm(true) }}>
           <Plus size={16} /> New shipment

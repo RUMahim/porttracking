@@ -51,7 +51,6 @@ export default function Notifications() {
       <div className="page-head">
         <div>
           <h1>Notifications {unread > 0 && <span className="badge">{unread}</span>}</h1>
-          <p className="muted">You are notified whenever your container status changes.</p>
         </div>
         {unread > 0 && (
           <button className="btn primary small" onClick={markAll}><CheckCheck size={15} /> Mark all as read</button>
