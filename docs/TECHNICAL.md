@@ -102,7 +102,7 @@ A ready-to-import Postman collection is in [`PortTrack.postman_collection.json`]
 |---|---|---|---|
 | GET | `/shipments?search=&type=` | Logged in | Own cargo for non-admins; search matches tracking ID / container / goods |
 | GET | `/shipments/:id` | Logged in | One shipment (owner-scoped) |
-| POST | `/shipments` | Logged in | Creates shipment **and** its container. Admin may pass `owner`. Auto tracking ID `PT-YYYY-XXXX` |
+| POST | `/shipments` | Logged in | Creates shipment **and** its container. Admin may pass `owner` (registered user) or `ownerName`/`ownerEmail` for an unregistered trader (auto-claimed on later registration with that email). Auto tracking ID `PT-YYYY-XXXX` |
 | PUT | `/shipments/:id` | Logged in | Update (owner-scoped; only admin can reassign owner) |
 | DELETE | `/shipments/:id` | Logged in | Deletes shipment + its container |
 | GET | `/shipments/track/:trackingId` | Public | Legacy public tracking |

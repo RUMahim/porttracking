@@ -128,7 +128,7 @@ export default function Dashboard() {
             <div>
               <strong>{s.trackingId}</strong>
               <small>{s.goodsType} · {s.origin} → {s.destination}</small>
-              <small>{fmtDate(s.createdAt)}{s.owner ? ` · ${s.owner.name}` : ''}</small>
+              <small>{fmtDate(s.createdAt)}{s.owner ? ` · ${s.owner.name}` : (s.ownerName ? ` · ${s.ownerName}` : '')}</small>
             </div>
             <span className={`pill ${s.type}`}>{s.type}</span>
           </div>

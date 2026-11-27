@@ -8,7 +8,7 @@ import { Modal, ConfirmModal } from '../components/Modal'
 import { SkeletonRows, EmptyState } from '../components/Skeleton'
 import { fmtDate } from '../utils/format'
 
-const EMPTY = { type: 'import', containerId: '', goodsType: '', origin: '', destination: '', ship: '', owner: '', weight: '', trackingId: '' }
+const EMPTY = { type: 'import', containerId: '', goodsType: '', origin: '', destination: '', ship: '', owner: '', ownerName: '', ownerEmail: '', weight: '', trackingId: '' }
 
 export default function ShipmentManagement() {
   const { isAdmin, user } = useAuth()
@@ -54,7 +54,13 @@ export default function ShipmentManagement() {
     try {
       const payload = { ...form, weight: form.weight ? Number(form.weight) : 0 }
       if (!payload.ship) delete payload.ship
-      if (!payload.owner) delete payload.owner
+      if (payload.owner === '__manual__') {
+        delete payload.owner
+      } else {
+        if (!payload.owner) delete payload.owner
+        delete payload.ownerName
+        delete payload.ownerEmail
+      }
       if (!payload.trackingId) delete payload.trackingId
       const { data } = await api.post('/shipments', payload)
       toast.success(`Shipment created — tracking ID ${data.shipment.trackingId}`)
@@ -130,7 +136,7 @@ export default function ShipmentManagement() {
                   <td>{s.goodsType}</td>
                   <td>{s.origin} → {s.destination}</td>
                   <td>{s.ship ? s.ship.name : '—'}</td>
-                  <td>{s.owner ? s.owner.name : '—'}</td>
+                  <td>{s.owner ? s.owner.name : (s.ownerName ? `${s.ownerName} (unregistered)` : '—')}</td>
                   <td>{fmtDate(s.createdAt)}</td>
                   <td>
                     <div className="row-actions">
@@ -170,8 +176,16 @@ export default function ShipmentManagement() {
                 <select value={form.owner} onChange={set('owner')}>
                   <option value="">Myself ({user?.name})</option>
                   {owners.map((o) => <option key={o._id} value={o._id}>{o.name} ({o.role})</option>)}
+                  <option value="__manual__">Unregistered trader (manual entry)</option>
                 </select>
               </label>
+            )}
+            {isAdmin && form.owner === '__manual__' && (
+              <>
+                <label>Trader name<input value={form.ownerName} onChange={set('ownerName')} placeholder="e.g. Dhaka Textiles Ltd" required /></label>
+                <label>Trader email<input type="email" value={form.ownerEmail} onChange={set('ownerEmail')} placeholder="trader@example.com" /></label>
+                <p className="hint" style={{ gridColumn: '1 / -1' }}>No account needed. If the trader later registers with this email, the shipment will automatically appear in their account.</p>
+              </>
             )}
             <label>Tracking ID (optional)<input value={form.trackingId} onChange={set('trackingId')} placeholder="Auto: PT-2026-XXXX" /></label>
             {error && <p className="error" style={{ gridColumn: '1 / -1' }}>{error}</p>}
