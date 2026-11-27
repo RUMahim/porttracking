@@ -75,7 +75,9 @@ router.get('/:id', protect, async (req, res, next) => {
 })
 
 // POST /api/shipments - creates the shipment and its container together
-// Body: type, containerId, goodsType, origin, destination, ship, owner (admin only), weight, trackingId (optional)
+// Body: type, containerId, goodsType, origin, destination, ship, weight, trackingId (optional)
+// Owner (admin only): `owner` = registered user id, OR `ownerName`/`ownerEmail` for an
+// unregistered trader (shipment stays unclaimed until that email registers).
 router.post('/', protect, async (req, res, next) => {
   try {
     const { type, containerId, goodsType, origin, destination, ship, weight } = req.body
@@ -87,7 +89,18 @@ router.post('/', protect, async (req, res, next) => {
     if (!['import', 'export'].includes(type)) {
       return res.status(400).json({ message: 'type must be import or export' })
     }
-    const owner = req.user.role === 'admin' && req.body.owner ? req.body.owner : req.user._id
+    let owner = req.user._id
+    let ownerName = ''
+    let ownerEmail = ''
+    if (req.user.role === 'admin') {
+      if (req.body.owner) {
+        owner = req.body.owner
+      } else if (req.body.ownerName || req.body.ownerEmail) {
+        owner = null
+        ownerName = (req.body.ownerName || '').trim()
+        ownerEmail = (req.body.ownerEmail || '').trim().toLowerCase()
+      }
+    }
     const trackingId = req.body.trackingId || (await generateTrackingId())
 
     const shipment = await Shipment.create({
@@ -99,6 +112,8 @@ router.post('/', protect, async (req, res, next) => {
       destination,
       ship: ship || undefined,
       owner,
+      ownerName,
+      ownerEmail,
     })
 
     const container = await Container.create({
@@ -123,7 +138,13 @@ router.put('/:id', protect, async (req, res, next) => {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid shipment ID' })
     const body = { ...req.body }
     if (body.ship === '') body.ship = null
-    if (req.user.role !== 'admin') delete body.owner
+    if (body.owner === '') body.owner = null
+    if (typeof body.ownerEmail === 'string') body.ownerEmail = body.ownerEmail.trim().toLowerCase()
+    if (req.user.role !== 'admin') {
+      delete body.owner
+      delete body.ownerName
+      delete body.ownerEmail
+    }
     const shipment = await Shipment.findOneAndUpdate(
       { _id: req.params.id, ...ownerFilter(req) },
       body,

@@ -76,7 +76,7 @@ Demo tracking ID for public search: `PT-2026-1042`
 | PUT    | /api/ships/:id                  | Admin   | Update ship                          |
 | DELETE | /api/ships/:id                  | Admin   | Delete ship (blocked if linked)      |
 | GET    | /api/shipments                  | Logged in | List shipments (own cargo for non-admin) |
-| POST   | /api/shipments                  | Logged in | Register shipment + container      |
+| POST   | /api/shipments                  | Logged in | Register shipment + container (admin: registered owner or manual trader name/email)      |
 | PUT    | /api/shipments/:id              | Logged in | Update shipment                    |
 | DELETE | /api/shipments/:id              | Logged in | Delete shipment + its container    |
 | GET    | /api/containers                 | Logged in | List containers                    |

@@ -290,3 +290,55 @@ describe('Both role (importer & exporter)', () => {
     expect(res.body.exportCount).toBe(1)
   })
 })
+
+describe('Unregistered trader (manual owner + auto-claim)', () => {
+  let manualTrackingId
+
+  test('admin creates shipment for unregistered trader (name/email, no account)', async () => {
+    const res = await request(app)
+      .post('/api/shipments')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        type: 'export', containerId: 'MANUAL-100-1', goodsType: 'Jute Goods',
+        origin: 'Mongla Port', destination: 'Rotterdam, Netherlands', ship: shipId, weight: 8000,
+        ownerName: 'Unregistered Trader Co', ownerEmail: 'Trader@Manual.demo',
+      })
+    expect(res.status).toBe(201)
+    expect(res.body.shipment.owner).toBeFalsy()
+    expect(res.body.shipment.ownerName).toBe('Unregistered Trader Co')
+    expect(res.body.shipment.ownerEmail).toBe('trader@manual.demo')
+    manualTrackingId = res.body.shipment.trackingId
+  })
+
+  test('unclaimed shipment is invisible to other traders', async () => {
+    const res = await request(app).get('/api/shipments').set('Authorization', `Bearer ${importerToken}`)
+    expect(res.body.map((s) => s.trackingId)).not.toContain(manualTrackingId)
+  })
+
+  test('registering with the same email auto-claims the shipment', async () => {
+    const reg = await request(app)
+      .post('/api/auth/register')
+      .send({ name: 'Unregistered Trader Co', email: 'trader@manual.demo', password: 'secret1', role: 'exporter' })
+    expect(reg.status).toBe(201)
+
+    const list = await request(app).get('/api/shipments').set('Authorization', `Bearer ${reg.body.token}`)
+    expect(list.status).toBe(200)
+    const claimed = list.body.find((s) => s.trackingId === manualTrackingId)
+    expect(claimed).toBeTruthy()
+    expect(claimed.owner._id).toBe(reg.body._id)
+  })
+
+  test('non-admin cannot set manual owner fields (owner stays self)', async () => {
+    const res = await request(app)
+      .post('/api/shipments')
+      .set('Authorization', `Bearer ${importerToken}`)
+      .send({
+        type: 'import', containerId: 'MANUAL-200-1', goodsType: 'Rice',
+        origin: 'Bangkok, Thailand', destination: 'Chattogram Port', ship: shipId, weight: 5000,
+        ownerName: 'Fake Name', ownerEmail: 'fake@manual.demo',
+      })
+    expect(res.status).toBe(201)
+    expect(res.body.shipment.owner).toBe(importerId)
+    expect(res.body.shipment.ownerName).toBeFalsy()
+  })
+})

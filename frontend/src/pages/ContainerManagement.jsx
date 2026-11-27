@@ -99,7 +99,7 @@ export default function ContainerManagement() {
                     {' · '}{c.shipment.origin} → {c.shipment.destination}
                   </small>
                 )}
-                {c.shipment?.owner && <small>Owner: {c.shipment.owner.name} ({c.shipment.owner.role})</small>}
+                {c.shipment?.owner ? <small>Owner: {c.shipment.owner.name} ({c.shipment.owner.role})</small> : (c.shipment?.ownerName ? <small>Owner: {c.shipment.ownerName} (unregistered)</small> : null)}
               </div>
               <span className="pill status">{c.currentStatus}</span>
             </div>

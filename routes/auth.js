@@ -2,6 +2,7 @@ const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+const Shipment = require('../models/Shipment')
 const { protect } = require('../middleware/auth')
 
 const router = express.Router()
@@ -42,6 +43,9 @@ router.post('/register', async (req, res, next) => {
       password: hashed,
       role: role || 'importer',
     })
+    // Auto-claim: shipments port officials registered for this email before the
+    // trader had an account now belong to the new account.
+    await Shipment.updateMany({ owner: null, ownerEmail: user.email }, { owner: user._id })
     res.status(201).json({ ...publicUser(user), token: signToken(user._id) })
   } catch (error) {
     next(error)
