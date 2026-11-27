@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { apiError } from '../api'
-import Logo from '../components/Logo'
+import AuthShell from '../components/AuthShell'
 
 export default function Register() {
   const { register } = useAuth()
@@ -34,37 +34,43 @@ export default function Register() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-brand">
-          <Logo size={46} />
-          <h1>PortTrack</h1>
-        </div>
-        <p className="muted">Create your account</p>
-        <form onSubmit={submit} className="form">
-          <label>Full name / Company</label>
+    <AuthShell title="Create your account" subtitle="Start tracking your cargo in minutes">
+      <form onSubmit={submit} className="form auth-form">
+        <label>Full name / Company</label>
+        <span className="field">
+          <User size={17} />
           <input value={form.name} onChange={set('name')} placeholder="Rahim Traders" required />
-          <label>Email</label>
+        </span>
+        <label>Email</label>
+        <span className="field">
+          <Mail size={17} />
           <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required />
-          <label>Password</label>
-          <span className="pw-wrap">
-            <input type={showPw ? 'text' : 'password'} value={form.password} onChange={set('password')} placeholder="At least 6 characters" required minLength={6} />
-            <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)}>
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </span>
-          <span className="hint">Minimum 6 characters.</span>
-          <label>Role</label>
-          <select value={form.role} onChange={set('role')}>
-            <option value="importer">Importer</option>
-            <option value="exporter">Exporter</option>
-            <option value="both">Importer &amp; Exporter (both)</option>
-          </select>
-          {error && <p className="error">{error}</p>}
-          <button className="btn primary" disabled={loading}>{loading ? 'Creating…' : 'Register'}</button>
-        </form>
-        <p className="muted center">Already have an account? <Link to="/login">Login</Link> · <Link to="/welcome">Home</Link></p>
-      </div>
-    </div>
+        </span>
+        <label>Password</label>
+        <span className="field pw-wrap">
+          <Lock size={17} />
+          <input type={showPw ? 'text' : 'password'} value={form.password} onChange={set('password')} placeholder="At least 6 characters" required minLength={6} />
+          <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)} aria-label="Show password">
+            {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </span>
+        <label>Role</label>
+        <select value={form.role} onChange={set('role')}>
+          <option value="importer">Importer</option>
+          <option value="exporter">Exporter</option>
+          <option value="both">Importer &amp; Exporter (both)</option>
+        </select>
+        {error && <p className="error">{error}</p>}
+        <button className="btn primary block center" disabled={loading}>
+          {loading ? 'Creating account…' : <>Create account <ArrowRight size={16} /></>}
+        </button>
+      </form>
+      <p className="muted center auth-alt">
+        Already have an account? <Link to="/login">Sign in</Link>
+      </p>
+      <p className="muted center auth-home">
+        <Link to="/welcome">← Back to home</Link>
+      </p>
+    </AuthShell>
   )
 }
