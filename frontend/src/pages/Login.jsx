@@ -5,12 +5,6 @@ import { useAuth } from '../context/AuthContext'
 import { apiError } from '../api'
 import Logo from '../components/Logo'
 
-const DEMO = [
-  { label: 'Admin / Port Officer', email: 'admin@porttrack.demo' },
-  { label: 'Importer', email: 'importer@porttrack.demo' },
-  { label: 'Exporter', email: 'exporter@porttrack.demo' },
-]
-
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -26,19 +20,6 @@ export default function Login() {
     setLoading(true)
     try {
       await login(email, password)
-      navigate('/')
-    } catch (err) {
-      setError(apiError(err))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const demoLogin = async (demoEmail) => {
-    setError('')
-    setLoading(true)
-    try {
-      await login(demoEmail, 'demo123')
       navigate('/')
     } catch (err) {
       setError(apiError(err))
@@ -68,14 +49,6 @@ export default function Login() {
           {error && <p className="error">{error}</p>}
           <button className="btn primary" disabled={loading}>{loading ? 'Logging in…' : 'Login'}</button>
         </form>
-        <div className="demo-box">
-          <strong>Demo logins (password: demo123)</strong>
-          {DEMO.map((d) => (
-            <button key={d.email} className="btn ghost block" disabled={loading} onClick={() => demoLogin(d.email)}>
-              {d.label} — {d.email}
-            </button>
-          ))}
-        </div>
         <p className="muted center">
           New importer/exporter? <Link to="/register">Register</Link>
         </p>
