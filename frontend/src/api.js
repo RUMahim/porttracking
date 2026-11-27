@@ -10,7 +10,7 @@ const api = axios.create({
 
 // Attach JWT token to every request
 api.interceptors.request.use((config) => {
-  const raw = localStorage.getItem('porttrack_user')
+  const raw = localStorage.getItem('porttrack_user') || sessionStorage.getItem('porttrack_user')
   if (raw) {
     try {
       const { token } = JSON.parse(raw)
